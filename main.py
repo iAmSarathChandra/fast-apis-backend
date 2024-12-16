@@ -5,7 +5,7 @@ from database import get_db
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from database import StoryResponse, DefaultStory, BannerResponse , Banner, MetadataResponse,GenreResponse,Genre
-from database import SubGenreResponse,SubGenre
+from database import SubGenreResponse,SubGenre, UserResponse , User
 
 app = FastAPI()
 
@@ -94,5 +94,12 @@ def get_subgenres_by_genre(genre_id: int, db: Session = Depends(get_db)):
         return subgenres
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    
+@app.get("/userinfo", response_model=UserResponse)
+def get_user_info(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 

@@ -10,7 +10,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship 
+from sqlalchemy import Column, Integer, String, TIMESTAMP, func
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:S%40r%40th%40ceo@34.93.93.205/postgres'
 
@@ -141,7 +142,23 @@ class SubGenreResponse(BaseModel):
     class Config:
         orm_mode = True
 
-    
+class User(Base):
+    __tablename__ = "tblusers"
+
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP, default=func.now())
+
+class UserResponse(BaseModel):
+    user_id: int
+    username: str
+    email: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
 
 def get_db():
     db = SessionLocal()
