@@ -3,3 +3,4 @@ uvicorn
 sqlalchemy
 jinja2
 databases
+psycopg2-binary==2.9.6

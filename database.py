@@ -12,6 +12,8 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship 
 from sqlalchemy import Column, Integer, String, TIMESTAMP, func
+from sqlalchemy import UniqueConstraint
+
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:S%40r%40th%40ceo@34.93.93.205/postgres'
 
@@ -159,6 +161,19 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class UserGenre(Base):
+    __tablename__ = 'tblUserGenres'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('tblUsers.user_id', ondelete='CASCADE'), nullable=False)
+    genre_id = Column(Integer, ForeignKey('tblgenres.id', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", back_populates="user_genres")
+    genre = relationship("Genre", back_populates="user_genres")
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'genre_id', name='_user_genre_uc'),
+    )
 
 def get_db():
     db = SessionLocal()
