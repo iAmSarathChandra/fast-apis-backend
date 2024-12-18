@@ -17,6 +17,106 @@ body {
     text-align: center;
     padding: 20px;
 }
+/* Genre buttons container */
+.genres-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+/* Genre button styling */
+.genre-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    background-color: #1506a3;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.genre-button:hover {
+    background-color: #17076b;
+}
+
+/* Sub-genres container styling */
+.sub-genres-container {
+    margin-top: 2rem;
+    background-color: #f1f1f1;
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center; /* Center the content */
+}
+
+/* Styling for 'Sub-genres of selected genre' heading */
+.sub-genres-container h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center; /* Center the heading */
+}
+
+/* Sub-genre individual item styling (styled as buttons) */
+.sub-genre {
+    padding: 12px 20px;
+    background-color: #5d19e4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin: 5px;
+    width: auto; /* Ensure button is sized based on text */
+    display: inline-block;
+}
+
+/* Sub-genre hover effect */
+.sub-genre:hover {
+    background-color: #371ed6;
+    transform: scale(1.05); /* Slightly increase button size on hover */
+}
+
+/* Ensure the sub-genres are aligned properly in the container */
+.sub-genres-container .sub-genre {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+/* Stack the sub-genres buttons on the next line (if needed) */
+.sub-genres-container .sub-genre:nth-of-type(1) {
+    margin-top: 1rem; /* Add space above the first button */
+}
+
+ .sub-genre-button {
+    margin: 5px;
+    padding: 10px;
+    background-color: #2606a7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.genre-button:hover, .sub-genre-button:hover {
+    background-color: #45a049;
+}
+
+#keywords-container div.keyword {
+    padding: 5px;
+    margin: 5px;
+    background-color: #f4f4f4;
+    border-radius: 3px;
+    color: #333;
+}
+
+
+
 
 header h1 {
     font-size: 2.5rem;

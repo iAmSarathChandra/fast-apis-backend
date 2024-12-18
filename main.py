@@ -5,7 +5,7 @@ from database import get_db
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from database import StoryResponse, DefaultStory, BannerResponse , Banner, MetadataResponse,GenreResponse,Genre
-from database import SubGenreResponse,SubGenre, UserResponse , User
+from database import SubGenreResponse,SubGenre, UserResponse , User, Keyword
 import openai
 import os
 from typing import Dict, Optional
@@ -18,6 +18,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from starlette.requests import Request
+import random
+from typing import List
 
 app = FastAPI()
 
@@ -27,19 +29,29 @@ templates = Jinja2Templates(directory="templates")
 
 # Define the path to the templates directory
 templates_dir = Path("templates")
+print(templates_dir)
 index_file = templates_dir / "index.html"
+print("Indec filr")
+print(index_file.exists())
+print(Path("templates/index.html").absolute())
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/abc", response_class=HTMLResponse)
 def read_root():
-    # Read and return the content of index.html
+    print("Checking index.html existence in templates directory...")
+    print(f"Templates directory: {Path('templates').absolute()}")
+    index_file = Path("templates/index.html")
+    print(f"Index file exists: {index_file.exists()}")
     if index_file.exists():
+        print("File found! Returning its content.")
         return index_file.read_text(encoding="utf-8")
+    print("File not found! Returning error message.")
     return {"error": "index.html not found"}
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    # Render index.html with Jinja2 template
+    print("Render index.html with Jinja2 template")
     return templates.TemplateResponse("index.html", {"request": request})
 
 # Other routes for the pages (Create, Read, Upload) can be done similarly
@@ -136,6 +148,42 @@ def get_subgenres_by_genre(genre_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
+import random
+from sqlalchemy.orm import Session
+
+# Helper function to get 5 random keywords for a given subgenre_id
+def get_random_keywords(subgenre_id: int, db: Session):
+    try:
+        # Query to fetch keywords based on subgenre_id
+        keywords = db.query(Keyword).filter(Keyword.subgenre_id == subgenre_id).all()
+
+        if not keywords:
+            raise HTTPException(status_code=404, detail="No keywords found for the provided subgenre_id")
+
+        # If there are fewer than 5 keywords, return all of them
+        if len(keywords) < 5:
+            return [keyword.name for keyword in keywords]
+
+        # Randomly select 5 keywords
+        random_keywords = random.sample([keyword.name for keyword in keywords], 5)
+        return random_keywords
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+# Route to fetch random keywords for a given subgenre_id
+@app.get("/keywords/{subgenre_id}", response_model=List[str])
+def fetch_keywords(subgenre_id: int, db: Session = Depends(get_db)):
+    try:
+        keywords = get_random_keywords(subgenre_id, db)
+        return keywords
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+    
 @app.get("/userinfo", response_model=UserResponse)
 def get_user_info(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.user_id == user_id).first()
@@ -154,19 +202,10 @@ openai.api_key = "sk-proj-lqPnpj8tUeVNwDQG0VhqQUhuiLD89FhYgJ7unvVFQA5c1N6V0RSAqE
 class StoryRequest(BaseModel):
     prompt: str
     word_count: int
-    from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict
-
-app = FastAPI()
 
 # Dummy data store (similar to story_store in the original code)
 story_store: Dict[str, dict] = {}
 
-# Request model to receive story data
-class StoryRequest(BaseModel):
-    prompt: str
-    word_count: int
 
 @app.post("/generate-story")
 async def generate_story(request: StoryRequest):

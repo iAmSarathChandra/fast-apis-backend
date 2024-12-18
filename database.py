@@ -159,6 +159,15 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+class Keyword(Base):
+    __tablename__ = "tblkeywords"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    subgenre_id = Column(Integer, ForeignKey("tblsubgenres.id"), index=True)
+
+class KeywordResponse:
+    id: int
+    name: str
 
 def get_db():
     db = SessionLocal()

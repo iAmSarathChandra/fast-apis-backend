@@ -11,11 +11,86 @@
         <header class="header">
             <h1>StoryHub</h1>
         </header>
+        <div class="container">
+            <h1>Select a Genre</h1>
+            <div class="genres-container" id="genres-container"></div>
+            <div class="sub-genres-container" id="sub-genres-container"></div>
+            <div id="keywords-container"></div>
+        </div>
+    
+        <script>
+            // Fetching the genres from the API
+            fetch('/genres')
+                .then(response => response.json())
+                .then(data => {
+                    const genresContainer = document.getElementById('genres-container');
+                    data.forEach(genre => {
+                        const button = document.createElement('button');
+                        button.classList.add('genre-button');
+                        button.innerText = genre.name;
+                        button.onclick = () => fetchSubGenres(genre.id);
+                        genresContainer.appendChild(button);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching genres:", error);
+                });
+        
+            // Fetch sub-genres for a selected genre
+            function fetchSubGenres(genreId) {
+                console.log("genre id " + genreId);
+        
+                // Updated API endpoint with query parameter
+                fetch(`/subgenres?genre_id=${genreId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Get the container where sub-genres will be displayed
+                        const subGenresContainer = document.getElementById('sub-genres-container');
+                        subGenresContainer.innerHTML = `<h2>Sub-genres of selected genre:</h2>`;
+        
+                        // Iterate over each sub-genre and create a button for each one
+                        data.forEach(subGenre => {
+                            const subGenreButton = document.createElement('button');
+                            subGenreButton.classList.add('sub-genre-button');
+                            subGenreButton.innerText = subGenre.name; // Display the name of the sub-genre
+                            subGenreButton.onclick = () => fetchKeywords(subGenre.id); // Fetch keywords on click
+                            subGenresContainer.appendChild(subGenreButton);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error fetching sub-genres:", error);
+                    });
+            }
+        
+            // Fetch keywords for a selected sub-genre
+            function fetchKeywords(subGenreId) {
+                console.log("subgenre id " + subGenreId);
+        
+                // API call to fetch keywords
+                fetch(`/keywords/${subGenreId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Get the container where keywords will be displayed
+                        const keywordsContainer = document.getElementById('keywords-container');
+                        keywordsContainer.innerHTML = `<h2>Keywords for selected sub-genre:</h2>`;
+        
+                        // Display the keywords
+                        data.forEach(keyword => {
+                            const keywordDiv = document.createElement('div');
+                            keywordDiv.classList.add('keyword');
+                            keywordDiv.innerText = keyword; // Display the keyword
+                            keywordsContainer.appendChild(keywordDiv);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error fetching keywords:", error);
+                    });
+            }
+        </script>
         
         <!-- Form to generate a story -->
         <main>
             <section class="generate-form">
-                <h2>Generate Your Story</h2>
                 <input type="text" id="prompt" placeholder="Enter your prompt..." />
                 <input type="number" id="word_count" placeholder="Enter word count..." min="50" />
                 <button onclick="generateStory()">Generate Story</button>
