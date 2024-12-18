@@ -3,11 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastAPI Example</title>
-    <link rel="stylesheet" href="/static/styles/style.css">
-</head>
-<body>
-    <h1>Welcome to the FastAPI App</h1>
-    <p>This is an example application using FastAPI, SQLAlchemy, and SQLite.</p>
+    <title>Story Hub</title>
+    <link rel="stylesheet" href="/styles/style.css">
+    <header class="header">
+        <div class="logo">
+            <h1>StoryHub</h1>
+        </div>
+        <nav class="nav-buttons">
+            <!-- Button to trigger the API call for Create -->
+            <button onclick="navigateTo('/create')">Create</button>
+            <!-- Button to trigger the API call for Read -->
+            <button onclick="navigateTo('/read')">Read</button>
+            <!-- Button to trigger the API call for Upload -->
+            <button onclick="navigateTo('/upload')">Upload</button>
+        </nav>
+    </header>
+    
+    <!-- Div to dynamically update the content based on the button clicked -->
+    <div id="content"></div>
+    
+    <script>
+        // JavaScript function to navigate to the desired page
+        function navigateTo(page) {
+            // Fetch the page content from the API
+            fetch(page)
+                .then(response => response.text())
+                .then(data => {
+                    // Update the content of the 'content' div with the response
+                    document.getElementById("content").innerHTML = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching the page:", error);
+                });
+        }
+    </script>
+    
+    <main>
+        <section class="welcome">
+            <h2>Welcome to StoryHub!</h2>
+            <p>Explore, create, and share amazing stories on any device!</p>
+        </section>
+
+        <section class="stories">
+            <h3>Featured Stories</h3>
+            <div class="story-grid">
+                <article class="story-card">
+                    <h4>The Enchanted Forest</h4>
+                    <p>Embark on a magical journey through an ancient forest...</p>
+                    <button>Read More</button>
+                </article>
+                <article class="story-card">
+                    <h4>Space Odyssey</h4>
+                    <p>Join a thrilling adventure among the stars...</p>
+                    <button>Read More</button>
+                </article>
+                <article class="story-card">
+                    <h4>Mystery of the Lost City</h4>
+                    <p>Discover the secrets of a forgotten civilization...</p>
+                    <button>Read More</button>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 StoryHub. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function navigate(section) {
+            alert(`Navigating to ${section}...`);
+            // Replace with actual navigation logic
+        }
+    </script>
 </body>
 </html>

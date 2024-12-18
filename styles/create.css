@@ -1,0 +1,153 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7fb;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+    padding: 20px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #3a86ff;
+    margin-bottom: 20px;
+}
+
+main {
+    margin-top: 30px;
+}
+
+.generate-form {
+    margin-bottom: 20px;
+}
+
+.generate-form input {
+    padding: 10px;
+    margin: 10px 0;
+    width: 80%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.generate-form button {
+    padding: 12px 20px;
+    background-color: #ff006e;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.generate-form button:hover {
+    background-color: #ff4081;
+}
+
+
+.dots {
+    display: flex;
+    justify-content: space-between;
+    width: 60px;
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #3498db;
+    animation: bounce 1.5s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.story {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    text-align: left;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+footer {
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .generate-form input, .generate-form button {
+        width: 90%;
+    }
+
+    .story {
+        max-width: 100%;
+    }
+
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .dots {
+        width: 25%;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dots {
+        width: 35%;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+    }
+}

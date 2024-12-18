@@ -9,14 +9,52 @@ from database import SubGenreResponse,SubGenre, UserResponse , User
 import openai
 import os
 from typing import Dict, Optional
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+from starlette.requests import Request
 
 app = FastAPI()
 
 
-# Route to render an HTML page
-@app.get("/")
+app.mount("/styles", StaticFiles(directory="styles"), name="styles")
+templates = Jinja2Templates(directory="templates")
+
+# Define the path to the templates directory
+templates_dir = Path("templates")
+index_file = templates_dir / "index.html"
+
+
+@app.get("/", response_class=HTMLResponse)
 def read_root():
-    return {"message": "Welcome to the FastAPI app!"}
+    # Read and return the content of index.html
+    if index_file.exists():
+        return index_file.read_text(encoding="utf-8")
+    return {"error": "index.html not found"}
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    # Render index.html with Jinja2 template
+    return templates.TemplateResponse("index.html", {"request": request})
+
+# Other routes for the pages (Create, Read, Upload) can be done similarly
+@app.get("/create", response_class=HTMLResponse)
+async def create_page(request: Request):
+    print("calling the create route")
+    return templates.TemplateResponse("create.html", {"request": request})
+
+@app.get("/read", response_class=HTMLResponse)
+async def read_page(request: Request):
+    return templates.TemplateResponse("read.html", {"request": request})
+
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_page(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request})
 
 
 @app.get("/banners", response_model=list[BannerResponse])
@@ -110,13 +148,46 @@ def get_user_info(user_id: int, db: Session = Depends(get_db)):
 story_store: Dict[str, dict[str, Optional[str]]] = {}
 
 
+openai.api_key = "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"
 
 # Request body model
 class StoryRequest(BaseModel):
     prompt: str
     word_count: int
+    from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Dict
+
+app = FastAPI()
+
+# Dummy data store (similar to story_store in the original code)
+story_store: Dict[str, dict] = {}
+
+# Request model to receive story data
+class StoryRequest(BaseModel):
+    prompt: str
+    word_count: int
 
 @app.post("/generate-story")
+async def generate_story(request: StoryRequest):
+    request_id = str(len(story_store) + 1)
+    
+    # Hardcoded dummy story parts for testing
+    dummy_story_part_1 = "Amelia and Grace met under the moonlit sky, their hearts racing with desire. They had been friends for years, but tonight they allowed themselves to explore a new level of intimacy. As they undressed each other, their hands caressed every inch of skin, igniting a fire between them. Grace traced her fingers along Amelia's curves, sending shivers down her spine. They moved together in a dance of passion, exploring each other's bodies in the darkness of the night. With each kiss and touch, they felt a connection deepening between them, a love that had been waiting to be unleashed. And as they gave themselves fully to each other, they knew that this was just the beginning of a love story worth telling."
+    dummy_story_part_2 = "The knight faced many challenges along the way, including dragons, enchanted forests, and mysterious beings."
+
+    # Store the request in the dummy store
+    story_store[request_id] = {
+        "prompt": request.prompt,
+        "word_count": request.word_count,
+        "generated_parts": [dummy_story_part_1, dummy_story_part_2]
+    }
+
+    # Return the hardcoded response
+    return {"request_id": request_id, "first_part": dummy_story_part_1}
+
+
+@app.post("/generate-story-comment")
 async def generate_story(request: StoryRequest):
     request_id = str(len(story_store) + 1)
     

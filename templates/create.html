@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Story - StoryHub</title>
+    <link rel="stylesheet" href="/styles/create.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>StoryHub</h1>
+        </header>
+        
+        <!-- Form to generate a story -->
+        <main>
+            <section class="generate-form">
+                <h2>Generate Your Story</h2>
+                <input type="text" id="prompt" placeholder="Enter your prompt..." />
+                <input type="number" id="word_count" placeholder="Enter word count..." min="50" />
+                <button onclick="generateStory()">Generate Story</button>
+            </section>
+
+            <section id="loading" class="loading" style="display: none;">
+                <div class="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <p>Generating your story...</p>
+            </section>
+            
+            <!-- Display Generated Story -->
+            <section id="story" class="story" style="display: none;">
+                <h3>Your Generated Story</h3>
+                <p id="story-id"></p>
+                <p id="story-content"></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 StoryHub. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // JavaScript to make the API request and handle loading state
+        function generateStory() {
+            const prompt = document.getElementById("prompt").value;
+            const word_count = document.getElementById("word_count").value;
+
+            // Display loading spinner
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("story").style.display = "none";
+
+            // Prepare the request data
+            const data = { prompt, word_count: parseInt(word_count) };
+
+            // Make API call to generate the story
+            fetch('/generate-story', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading spinner and display the generated story
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("story").style.display = "block";
+                document.getElementById("story-id").textContent = "Story ID: " + data.request_id;
+                document.getElementById("story-content").textContent = data.first_part || "Sorry, something went wrong.";
+            })
+            .catch(error => {
+                console.error("Error generating the story:", error);
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("story").style.display = "block";
+                document.getElementById("story-content").textContent = "There was an error generating the story.";
+            });
+        }
+    </script>
+</body>
+</html>
