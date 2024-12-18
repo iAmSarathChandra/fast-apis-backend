@@ -110,7 +110,6 @@ def get_user_info(user_id: int, db: Session = Depends(get_db)):
 story_store: Dict[str, dict[str, Optional[str]]] = {}
 
 
-openai.api_key = "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"
 
 # Request body model
 class StoryRequest(BaseModel):
