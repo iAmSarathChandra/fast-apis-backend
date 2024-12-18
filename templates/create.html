@@ -9,16 +9,20 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>StoryHub</h1>
+            <h1>Stories by <span class="ai-text">AI</span></h1>
         </header>
         <div class="container">
-            <h1>Select a Genre</h1>
+            <h2>Select a Genre</h2>
             <div class="genres-container" id="genres-container"></div>
             <div class="sub-genres-container" id="sub-genres-container"></div>
             <div id="keywords-container"></div>
         </div>
-    
+
         <script>
+            let selectedGenre = ""; // To store the selected genre name
+            let selectedSubGenre = ""; // To store the selected sub-genre name
+            let selectedKeywords = []; // To store the fetched keywords
+
             // Fetching the genres from the API
             fetch('/genres')
                 .then(response => response.json())
@@ -28,32 +32,32 @@
                         const button = document.createElement('button');
                         button.classList.add('genre-button');
                         button.innerText = genre.name;
-                        button.onclick = () => fetchSubGenres(genre.id);
+                        button.onclick = () => {
+                            selectedGenre = genre.name; // Store selected genre name
+                            fetchSubGenres(genre.id);
+                        };
                         genresContainer.appendChild(button);
                     });
                 })
                 .catch(error => {
                     console.error("Error fetching genres:", error);
                 });
-        
+
             // Fetch sub-genres for a selected genre
             function fetchSubGenres(genreId) {
-                console.log("genre id " + genreId);
-        
-                // Updated API endpoint with query parameter
                 fetch(`/subgenres?genre_id=${genreId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Get the container where sub-genres will be displayed
                         const subGenresContainer = document.getElementById('sub-genres-container');
                         subGenresContainer.innerHTML = `<h2>Sub-genres of selected genre:</h2>`;
-        
-                        // Iterate over each sub-genre and create a button for each one
                         data.forEach(subGenre => {
                             const subGenreButton = document.createElement('button');
                             subGenreButton.classList.add('sub-genre-button');
-                            subGenreButton.innerText = subGenre.name; // Display the name of the sub-genre
-                            subGenreButton.onclick = () => fetchKeywords(subGenre.id); // Fetch keywords on click
+                            subGenreButton.innerText = subGenre.name;
+                            subGenreButton.onclick = () => {
+                                selectedSubGenre = subGenre.name; // Store selected sub-genre name
+                                fetchKeywords(subGenre.id);
+                            };
                             subGenresContainer.appendChild(subGenreButton);
                         });
                     })
@@ -61,24 +65,31 @@
                         console.error("Error fetching sub-genres:", error);
                     });
             }
-        
+
             // Fetch keywords for a selected sub-genre
             function fetchKeywords(subGenreId) {
-                console.log("subgenre id " + subGenreId);
-        
-                // API call to fetch keywords
                 fetch(`/keywords/${subGenreId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Get the container where keywords will be displayed
+                        selectedKeywords = [];
                         const keywordsContainer = document.getElementById('keywords-container');
                         keywordsContainer.innerHTML = `<h2>Keywords for selected sub-genre:</h2>`;
-        
-                        // Display the keywords
                         data.forEach(keyword => {
                             const keywordDiv = document.createElement('div');
                             keywordDiv.classList.add('keyword');
-                            keywordDiv.innerText = keyword; // Display the keyword
+
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.value = keyword;
+                            checkbox.id = `keyword-${keyword}`;
+                            checkbox.onchange = (event) => toggleKeywordSelection(event, keyword);
+
+                            const label = document.createElement('label');
+                            label.htmlFor = `keyword-${keyword}`;
+                            label.innerText = keyword;
+
+                            keywordDiv.appendChild(checkbox);
+                            keywordDiv.appendChild(label);
                             keywordsContainer.appendChild(keywordDiv);
                         });
                     })
@@ -86,74 +97,94 @@
                         console.error("Error fetching keywords:", error);
                     });
             }
+
+            // Handle keyword selection
+            function toggleKeywordSelection(event, keyword) {
+                if (event.target.checked) {
+                    selectedKeywords.push(keyword);
+                } else {
+                    selectedKeywords = selectedKeywords.filter(kw => kw !== keyword);
+                }
+                console.log("Selected Keywords:", selectedKeywords);
+            }
+
+            function generateStory() {
+                const word_count = document.getElementById("word_count").value;
+
+                // Validate inputs
+                if (!selectedGenre || !selectedSubGenre || selectedKeywords.length === 0) {
+                    alert("Please select a genre, sub-genre, and at least one keyword.");
+                    return;
+                }
+                if (!word_count || word_count < 50) {
+                    alert("Please enter a valid word count (minimum 50).");
+                    return;
+                }
+
+                const prompt = `Genre: ${selectedGenre}, Sub-Genre: ${selectedSubGenre}, Keywords: ${selectedKeywords.join(', ')}`;
+                console.log("Prompt is: " + prompt);
+
+                document.getElementById("loading").style.display = "block";
+                document.getElementById("story").style.display = "none";
+
+                // Prepare the request data
+                const data = { prompt, word_count: parseInt(word_count) };
+                console.log("data log is : " + data.prompt)
+
+                fetch('/generate-story-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to fetch story");
+                        }
+                        console.log("response is : " + response)
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("data is : " + data)
+                        document.getElementById("loading").style.display = "none";
+                        document.getElementById("story").style.display = "block";
+                        document.getElementById("story-id").textContent = "Story ID: " + (data.request_id || "N/A");
+                        document.getElementById("story-content").textContent = data.first_part || "No story content received.";
+                    })
+                    .catch(error => {
+                        console.error("Error generating story:", error);
+                        document.getElementById("loading").style.display = "none";
+                        alert("Error generating the story. Please try again.");
+                    });
+            }
         </script>
-        
-        <!-- Form to generate a story -->
-        <main>
-            <section class="generate-form">
-                <input type="text" id="prompt" placeholder="Enter your prompt..." />
-                <input type="number" id="word_count" placeholder="Enter word count..." min="50" />
-                <button onclick="generateStory()">Generate Story</button>
-            </section>
 
-            <section id="loading" class="loading" style="display: none;">
-                <div class="dots">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                </div>
-                <p>Generating your story...</p>
-            </section>
-            
-            <!-- Display Generated Story -->
-            <section id="story" class="story" style="display: none;">
-                <h3>Your Generated Story</h3>
-                <p id="story-id"></p>
-                <p id="story-content"></p>
-            </section>
-        </main>
+        <!-- Updated Form to Generate a Story -->
+        <section class="generate-form">
+            <input type="number" id="word_count" placeholder="Enter word count..." min="50" />
+            <button onclick="generateStory()">Generate Story</button>
+        </section>
 
+        <!-- Loading Indicator -->
+        <section id="loading" class="loading" style="display: none;">
+            <div class="dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <p>Generating your story...</p>
+        </section>
+
+        <!-- Display Generated Story -->
+        <section id="story" class="story" style="display: none;">
+            <h3>Your Generated Story</h3>
+            <p id="story-id"></p>
+            <p id="story-content"></p>
+        </section>
         <footer>
             <p>&copy; 2024 StoryHub. All rights reserved.</p>
         </footer>
     </div>
-
-    <script>
-        // JavaScript to make the API request and handle loading state
-        function generateStory() {
-            const prompt = document.getElementById("prompt").value;
-            const word_count = document.getElementById("word_count").value;
-
-            // Display loading spinner
-            document.getElementById("loading").style.display = "block";
-            document.getElementById("story").style.display = "none";
-
-            // Prepare the request data
-            const data = { prompt, word_count: parseInt(word_count) };
-
-            // Make API call to generate the story
-            fetch('/generate-story', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading spinner and display the generated story
-                document.getElementById("loading").style.display = "none";
-                document.getElementById("story").style.display = "block";
-                document.getElementById("story-id").textContent = "Story ID: " + data.request_id;
-                document.getElementById("story-content").textContent = data.first_part || "Sorry, something went wrong.";
-            })
-            .catch(error => {
-                console.error("Error generating the story:", error);
-                document.getElementById("loading").style.display = "none";
-                document.getElementById("story").style.display = "block";
-                document.getElementById("story-content").textContent = "There was an error generating the story.";
-            });
-        }
-    </script>
 </body>
 </html>

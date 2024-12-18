@@ -103,26 +103,86 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.genre-button:hover, .sub-genre-button:hover {
-    background-color: #45a049;
-}
 
 #keywords-container div.keyword {
-    padding: 5px;
-    margin: 5px;
-    background-color: #f4f4f4;
-    border-radius: 3px;
-    color: #333;
+    display: inline-block; /* Makes each keyword button fit its content */
+    padding: 8px 12px; /* Adds space around the text */
+    margin: 5px; /* Adds spacing between buttons */
+    background-color: #381fa3; /* Sets a beautiful deep purple background */
+    border-radius: 20px; /* Gives a pill-shaped appearance */
+    color: hsl(0, 50%, 98%); /* Light color for the text */
+    font-size: 14px; /* Adjusts text size for readability */
+    font-weight: 600; /* Makes the text bold */
+    text-align: center; /* Centers the text */
+    cursor: pointer; /* Changes the cursor to a pointer to indicate it's clickable */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth hover effects */
+}
+
+#keywords-container div.keyword:hover {
+    background-color: #563ed9; /* Changes the background color slightly on hover */
+    transform: translateY(-3px); /* Lifts the button slightly */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Increases shadow intensity */
+}
+
+#keywords-container div.keyword:active {
+    transform: translateY(0); /* Restores position on click */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Reduces shadow on click */
 }
 
 
 
 
-header h1 {
-    font-size: 2.5rem;
-    color: #3a86ff;
-    margin-bottom: 20px;
+
+h1 {
+    font-family: 'Roboto', sans-serif; /* Smooth, modern font */
+    font-size: 3rem; /* Large, eye-catching font size */
+    font-weight: 700; /* Bold text */
+    color: #2c3e50; /* Dark, elegant color */
+    text-align: center; /* Centers the title */
+    letter-spacing: 2px; /* Adds spacing between letters */
+    text-transform: uppercase; /* Makes text uppercase for emphasis */
+    background: linear-gradient(90deg, #4a0767, #060e77); /* Gradient background */
+    -webkit-background-clip: text; /* Clips the background to the text */
+    color: transparent; /* Makes text transparent so gradient shows through */
+    padding: 20px 0; /* Adds padding for spacing around the text */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border-radius: 8px; /* Rounded corners */
+    max-width: 80%; /* Limits the width to avoid stretching */
+    margin: 0 auto; /* Centers the element horizontally */
+    transition: transform 0.3s ease-in-out, color 0.3s ease-in-out; /* Smooth hover effects */
+    position: relative; /* Allows for absolute positioning of "AI" */
 }
+
+/* After page load, rotate the "AI" text */
+h1 span.ai-text {
+    display: inline-block;
+    animation: rotateAI 2s ease-in-out forwards; /* Rotate effect */
+}
+
+/* Keyframes for rotating "AI" text */
+@keyframes rotateAI {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hover effect */
+h1:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    color: #0d0101; /* Changes text color on hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Increases shadow on hover */
+}
+
+/* On hover, change the color of 'AI' to black and increase text size */
+h1 span.ai-text {
+    color: black; /* Changes color to black */
+    font-size: 4rem; /* Increases size on hover */
+}
+
 
 main {
     margin-top: 30px;

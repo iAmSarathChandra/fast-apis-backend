@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Hub</title>
     <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
     <header class="header">
         <div class="logo">
             <h1>StoryHub</h1>
@@ -20,25 +22,7 @@
     </header>
     
     <!-- Div to dynamically update the content based on the button clicked -->
-    <div id="content"></div>
-    
-    <script>
-        // JavaScript function to navigate to the desired page
-        function navigateTo(page) {
-            // Fetch the page content from the API
-            fetch(page)
-                .then(response => response.text())
-                .then(data => {
-                    // Update the content of the 'content' div with the response
-                    document.getElementById("content").innerHTML = data;
-                })
-                .catch(error => {
-                    console.error("Error fetching the page:", error);
-                });
-        }
-    </script>
-    
-    <main>
+    <div id="content">
         <section class="welcome">
             <h2>Welcome to StoryHub!</h2>
             <p>Explore, create, and share amazing stories on any device!</p>
@@ -64,16 +48,25 @@
                 </article>
             </div>
         </section>
-    </main>
+    </div>
 
     <footer>
         <p>&copy; 2024 StoryHub. All rights reserved.</p>
     </footer>
 
     <script>
-        function navigate(section) {
-            alert(`Navigating to ${section}...`);
-            // Replace with actual navigation logic
+        // JavaScript function to navigate to the desired page
+        function navigateTo(page) {
+            // Fetch the page content from the API
+            fetch(page)
+                .then(response => response.text())
+                .then(data => {
+                    // Update the content of the 'content' div with the response
+                    document.getElementById("content").innerHTML = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching the page:", error);
+                });
         }
     </script>
 </body>

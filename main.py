@@ -20,6 +20,8 @@ from pathlib import Path
 from starlette.requests import Request
 import random
 from typing import List
+import random
+from sqlalchemy.orm import Session
 
 app = FastAPI()
 
@@ -29,35 +31,16 @@ templates = Jinja2Templates(directory="templates")
 
 # Define the path to the templates directory
 templates_dir = Path("templates")
-print(templates_dir)
 index_file = templates_dir / "index.html"
-print("Indec filr")
-print(index_file.exists())
-print(Path("templates/index.html").absolute())
-
-
-@app.get("/abc", response_class=HTMLResponse)
-def read_root():
-    print("Checking index.html existence in templates directory...")
-    print(f"Templates directory: {Path('templates').absolute()}")
-    index_file = Path("templates/index.html")
-    print(f"Index file exists: {index_file.exists()}")
-    if index_file.exists():
-        print("File found! Returning its content.")
-        return index_file.read_text(encoding="utf-8")
-    print("File not found! Returning error message.")
-    return {"error": "index.html not found"}
 
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    print("Render index.html with Jinja2 template")
     return templates.TemplateResponse("index.html", {"request": request})
 
 # Other routes for the pages (Create, Read, Upload) can be done similarly
 @app.get("/create", response_class=HTMLResponse)
 async def create_page(request: Request):
-    print("calling the create route")
     return templates.TemplateResponse("create.html", {"request": request})
 
 @app.get("/read", response_class=HTMLResponse)
@@ -148,9 +131,6 @@ def get_subgenres_by_genre(genre_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
-import random
-from sqlalchemy.orm import Session
-
 # Helper function to get 5 random keywords for a given subgenre_id
 def get_random_keywords(subgenre_id: int, db: Session):
     try:
@@ -243,6 +223,7 @@ async def generate_story(request: StoryRequest):
         # Save the first part of the story in the store and include it in the response
         story_part = response["choices"][0]["message"]["content"]
         story_store[request_id]["generated_parts"].append(story_part)
+        print("Story is : " +story_part   + "REQUEST ID : " + request_id)
         return {"request_id": request_id, "first_part": story_part}
     except Exception as e:
         # Handle API errors
@@ -272,3 +253,56 @@ async def continue_story(request_id: str):
         return {"status": "complete", "second_part": story_part}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+'''
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+import openai
+
+app = FastAPI()
+
+# Mocked store for simplicity
+story_store = {}
+
+@app.post("/generate-story-comment")
+async def generate_story(request: StoryRequest):
+    request_id = str(len(story_store) + 1)
+    
+    # Store initial metadata
+    story_store[request_id] = {"prompt": request.prompt, "word_count": request.word_count, "generated_parts": []}
+    
+    async def generate_story_stream():
+        try:
+            # Call OpenAI API with streaming enabled
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "user", "content": f"Write a story based on the prompt: '{request.prompt}' with around {request.word_count} words. Start generating the story part by part."}
+                ],
+                stream=True  # Enable streaming
+            )
+            
+            story = ""  # Variable to accumulate the full story
+            for chunk in response:
+                if 'choices' in chunk and chunk['choices']:
+                    delta = chunk['choices'][0]['delta']
+                    if 'content' in delta:
+                        part = delta['content']
+                        story += part
+                        yield part  # Stream this part to the client
+                        
+            # Save the full story in the store after streaming is complete
+            story_store[request_id]["generated_parts"].append(story)
+            print(f"Story generation completed for Request ID: {request_id}")
+        except Exception as e:
+            # Cleanup in case of error
+            story_store.pop(request_id, None)
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    # Return StreamingResponse
+    return StreamingResponse(generate_story_stream(), media_type="text/plain")
+
+
+
+'''
